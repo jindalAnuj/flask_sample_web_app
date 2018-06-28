@@ -68,12 +68,15 @@ def login():
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    return 'Logged in as: ' + flask_login.current_user.id 
-    #render_template('ecom.html')
+    return render_template('ecom.html')
+    
+    # 'Logged in as: ' + flask_login.current_user.id 
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
+    if flask.request.method == 'GET':
+        return 
     flask_login.logout_user()
     return 'Logged out' 
 
@@ -106,4 +109,4 @@ def unauthorized_handler():
 # 	return render_template('gui2.html', name = bucket_name, data = data)
 
 if __name__ == '__main__':
-   app.run(port = 8080, debug=True)
+   app.run(host = '0.0.0.0' ,port = 8080)
