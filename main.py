@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import flask
 import boto3
 import flask_login
+import mysql.connector
 
-# s3 = boto3.client('s3', aws_access_key_id='',
-#     aws_secret_access_key='')
+# db = mysql.connector.connect(host="anujjindal.cn6fcrgoswsm.ap-south-1.rds.amazonaws.com",
+#                     user="anujjindal",password="anuj123.awsdb",db="anujjindal")
 
 app = Flask(__name__)
 app.secret_key = 'abc-abc'
@@ -12,7 +13,7 @@ app.secret_key = 'abc-abc'
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-users = {'foo@bar.tld': {'password': 'secret'}}
+users = {'admin@gmail.com': {'password': 'secret'}}
 
 
 class User(flask_login.UserMixin):
@@ -71,7 +72,10 @@ def protected():
     return render_template('ecom.html')
     
     # 'Logged in as: ' + flask_login.current_user.id 
-
+# @app.route('/goback')
+# def goback():
+#     return render_template('ecom.html')
+    
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -80,11 +84,49 @@ def logout():
     flask_login.logout_user()
     return 'Logged out' 
 
+@app.route('/buy', methods=['GET', 'POST'])
+def buy():
+    if flask.request.method == 'GET':
+        return 
+    print('check2')
+    product_list = request.form.getlist("prod")
+    print(product_list)
+    amount = 0
+    db = mysql.connector.connect(host="localhost",
+                    user="root",password="root",db="test",port="3306")
+
+    cursor = db.cursor()
+    for p in product_list:
+        print(p)
+        if(p =='prod1'):
+            amount = amount+20
+            cursor.execute("""INSERT INTO test.order (price,name) VALUES (%s,%s)""",('20',p)) 
+            print ('check3')
+            db.commit()
+
+
+        if(p =='prod2'):
+            amount = amount+30
+            cursor.execute("""INSERT INTO test.order(price,
+            name)
+            VALUES (%s,%s)""",(30,p)) 
+            print ('check4')
+            db.commit()
+
+
+        if(p =='prod3'):
+            amount = amount+40
+            cursor.execute("""INSERT INTO test.order(price,
+            name)
+            VALUES (%s,%s)""",(40,p)) 
+            print ('check5')
+            db.commit()
+    db.close()
+    return render_template('final.html',amt=amount)
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized' 
-
 # @app.route('/')
 # def index():
 #     return render_template('index.html')
@@ -108,5 +150,9 @@ def unauthorized_handler():
 # 	print(data)
 # 	return render_template('gui2.html', name = bucket_name, data = data)
 
+ 
+
+
 if __name__ == '__main__':
-   app.run(host = '0.0.0.0' ,port = 8080)
+    app.run(port = 8080, debug=True)
+  # app.run(host = '0.0.0.0' ,port = 8080)
